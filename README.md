@@ -1,3 +1,3 @@
 # FewShotLearning_EndoscopyLocalization
 
-Run test_TrainUtils.py in tests folder.
+See test_TrainUtils.py in tests folder.
