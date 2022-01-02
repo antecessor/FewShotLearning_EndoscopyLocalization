@@ -61,7 +61,7 @@ class Prototypical(Model):
                 tf.keras.layers.MaxPool2D((2, 2)), Flatten()]
             )
         else:
-            self.encoder = encoder
+            self.encoder = ecnoder
 
     def call(self, support, query):
         n_class = support.shape[0]

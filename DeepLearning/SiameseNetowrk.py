@@ -4,13 +4,11 @@ import numpy as np
 
 import random
 
-from keras.datasets import mnist
-from keras.initializers import glorot_uniform
 from keras.models import Model
-from keras.layers import Input, Flatten, Dense, Dropout, Lambda, Conv2D, BatchNormalization, Concatenate, concatenate, AveragePooling2D, AveragePooling1D
+from keras.layers import Input, Flatten, Dense,  Lambda, Conv2D, BatchNormalization, AveragePooling2D, AveragePooling1D
 from keras.optimizers import RMSprop
 from keras import backend as K
-from tensorflow_core.python.keras.callbacks import Callback
+from tensorflow.python.keras.callbacks import Callback
 
 
 def euclidean_distance(vects):
