@@ -8,35 +8,37 @@ from tensorflow.keras.backend import categorical_crossentropy, batch_dot
 
 
 class MatchingNetwork(Model):
-    def __init__(self, way, w, h, c, lstm_size=32, batch_size=32):
+    def __init__(self, way, w, h, c, lstm_size=32, batch_size=32, encoder=None):
         super(MatchingNetwork, self).__init__()
 
         self.way = way
         self.w, self.h, self.c = w, h, c
         self.batch_size = batch_size
+        if encoder is None:
+            self.g = tf.keras.Sequential([
+                Conv2D(filters=64, kernel_size=3, padding='same'),
+                BatchNormalization(),
+                ReLU(),
+                MaxPool2D((2, 2)),
 
-        self.g = tf.keras.Sequential([
-            Conv2D(filters=64, kernel_size=3, padding='same'),
-            BatchNormalization(),
-            ReLU(),
-            MaxPool2D((2, 2)),
+                Conv2D(filters=64, kernel_size=3, padding='same'),
+                BatchNormalization(),
+                ReLU(),
+                MaxPool2D((2, 2)),
 
-            Conv2D(filters=64, kernel_size=3, padding='same'),
-            BatchNormalization(),
-            ReLU(),
-            MaxPool2D((2, 2)),
+                Conv2D(filters=64, kernel_size=3, padding='same'),
+                BatchNormalization(),
+                ReLU(),
+                MaxPool2D((2, 2)),
 
-            Conv2D(filters=64, kernel_size=3, padding='same'),
-            BatchNormalization(),
-            ReLU(),
-            MaxPool2D((2, 2)),
-
-            Conv2D(filters=64, kernel_size=3, padding='same'),
-            BatchNormalization(),
-            ReLU(),
-            MaxPool2D((2, 2)),
-            Flatten()]
-        )
+                Conv2D(filters=64, kernel_size=3, padding='same'),
+                BatchNormalization(),
+                ReLU(),
+                MaxPool2D((2, 2)),
+                Flatten()]
+            )
+        else:
+            self.g = encoder
         # Fully contextual embedding
         assert self.w == self.h, "Current model operates only with square images for now"
         self.fce_dim = int(np.floor(self.w / 16)) ** 2 * 64  # Input LSTM dimenstion

@@ -25,7 +25,7 @@ class Prototypical(Model):
     Implemenation of Prototypical Network.
     """
 
-    def __init__(self, n_support, n_query, w, h, c):
+    def __init__(self, n_support, n_query, w, h, c, ecnoder=None):
         """
         Args:
             n_support (int): number of support examples.
@@ -38,27 +38,30 @@ class Prototypical(Model):
         self.w, self.h, self.c = w, h, c
 
         # Encoder as ResNet like CNN with 4 blocks
-        self.encoder = tf.keras.Sequential([
-            tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.MaxPool2D((2, 2)),
+        if ecnoder is None:
+            self.encoder = tf.keras.Sequential([
+                tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
+                tf.keras.layers.BatchNormalization(),
+                tf.keras.layers.ReLU(),
+                tf.keras.layers.MaxPool2D((2, 2)),
 
-            tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.MaxPool2D((2, 2)),
+                tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
+                tf.keras.layers.BatchNormalization(),
+                tf.keras.layers.ReLU(),
+                tf.keras.layers.MaxPool2D((2, 2)),
 
-            tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.MaxPool2D((2, 2)),
+                tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
+                tf.keras.layers.BatchNormalization(),
+                tf.keras.layers.ReLU(),
+                tf.keras.layers.MaxPool2D((2, 2)),
 
-            tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
-            tf.keras.layers.BatchNormalization(),
-            tf.keras.layers.ReLU(),
-            tf.keras.layers.MaxPool2D((2, 2)), Flatten()]
-        )
+                tf.keras.layers.Conv2D(filters=64, kernel_size=3, padding='same'),
+                tf.keras.layers.BatchNormalization(),
+                tf.keras.layers.ReLU(),
+                tf.keras.layers.MaxPool2D((2, 2)), Flatten()]
+            )
+        else:
+            self.encoder = encoder
 
     def call(self, support, query):
         n_class = support.shape[0]
