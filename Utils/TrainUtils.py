@@ -2,6 +2,8 @@ from keras.engine.saving import load_model
 from keras.utils import to_categorical
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
+import numpy as np
+from tqdm import tqdm
 
 from DeepLearning.ImageClassificationCNN import createClassificationNet, testClassification
 from DeepLearning.LatentVectorClustering import trainClusterImages, testClustering
@@ -73,6 +75,9 @@ class TrainUtils:
 
     def testSiamseNetwork(self, xGroups, yGroups, testImages, yGroupNames, fs=25):
         model = load_model('E:\Workspaces\EndoscopyLocalizationFewShot\EndoscopyFrameReview\\test\PositionModel.h5', custom_objects={"contrastive_loss": contrastive_loss})
+        # model = load_model('E:\Workspaces\EndoscopyLocalizationFewShot\EndoscopyFrameReview\\test\PositionModel_prototypical.h5', custom_objects={"contrastive_loss": contrastive_loss})
+        # model = load_model('E:\Workspaces\EndoscopyLocalizationFewShot\EndoscopyFrameReview\\test\PositionModel_matching.h5', custom_objects={"contrastive_loss": contrastive_loss})
+
         bestDist, bestClass = testSiamese(model, xGroups, yGroups, testImages)
         windowsize = int(fs * 2)
         distWindow, classWindow = self.dataUtils.windowingSig(bestDist, bestClass, windowSize=windowsize)
@@ -115,3 +120,55 @@ class TrainUtils:
                 labelNames.append("Other")
                 distances.append(np.min(distWindow[index]))
         return labelNames, distances, windowsize
+
+
+
+class TrainEngineMatchingNN(object):
+    """
+    Engine that launches training per epochs and episodes.
+    Contains hooks to perform certain actions when necessary.
+    """
+    def __init__(self):
+        self.hooks = {name: lambda state: None
+                      for name in ['on_start',
+                                   'on_start_epoch',
+                                   'on_end_epoch',
+                                   'on_start_episode',
+                                   'on_end_episode',
+                                   'on_end']}
+
+    def train(self, loss_func, train_loader, val_loader, epochs, n_episodes, **kwargs):
+        # State of the training procedure
+        state = {
+            'train_loader': train_loader,
+            'val_loader': val_loader,
+            'loss_func': loss_func,
+            'sample': None,
+            'epoch': 1,
+            'total_episode': 1,
+            'epochs': epochs,
+            'n_episodes': n_episodes,
+            'best_val_loss': np.inf,
+            'early_stopping_triggered': False
+        }
+
+        self.hooks['on_start'](state)
+        for epoch in range(state['epochs']):
+            self.hooks['on_start_epoch'](state)
+            for _ in tqdm(range(state['n_episodes'])):
+                x_support, y_support, x_query, y_query = train_loader.get_next_episode()
+                state['sample'] = (x_support, y_support, x_query, y_query)
+                self.hooks['on_start_episode'](state)
+                self.hooks['on_end_episode'](state)
+                state['total_episode'] += 1
+
+            self.hooks['on_end_epoch'](state)
+            state['epoch'] += 1
+
+            # Early stopping
+            if state['early_stopping_triggered']:
+                print("Early stopping triggered!")
+                break
+
+        self.hooks['on_end'](state)
+        print("Training succeed!")

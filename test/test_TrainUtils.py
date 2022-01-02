@@ -74,33 +74,6 @@ class TestTrainUtils(TestCase):
                                               timePosition=list(timesPosition.ravel()),
                                               dist=dist, labelNamesPosition=labelNamesPosition)
 
-    def testAnalyzeResultsQuerySet(self):
-        labels = ["Larynx", "Oesophagus", "Cardia", "Angularis", "Antrum", "Pylorus", "Duodenum", "Jejunum", "Ileum", "Appendix", "Colon", "Rectum", "Anus"]
-        numberCETest1 = [4, 3, 3, 3, 4, 2, 7, 2, 5, 2, 5, 2, 2]
-        numberWCETest1 = [0, 1, 1, 0, 0, 1, 2, 1, 2, 0, 2, 0, 0]
-        numberCETest2 = [50, 3075, 2450, 500, 0, 2500, 2700, 1500, 0, 0, 5475, 5500, 2000]
-        numberWCETest2 = [0, 260, 20, 0, 0, 280, 130, 380, 280, 0, 475, 0, 0]
-        Target = []
-        Output = []
-        ErrorPercent = 0.23
-        numbersInSelectedWay = np.asarray(numberCETest2)
-        selectedLabel = []
-        k = 0
-        for index, item in enumerate(numbersInSelectedWay):
-            if item != 0:
-                item = int(item / 10)
-                TargetG = k * np.ones([1, item])
-                k = k + 1
-                Target.extend(TargetG[0])
-
-                sizeError = int(ErrorPercent * len(TargetG[0]))
-                TargetG[0, range(sizeError)] = np.random.randint(0, len(np.where(numbersInSelectedWay != 0)[0]), [1, sizeError])
-                Output.extend(TargetG[0])
-                selectedLabel.append(labels[index])
-
-        print(classification_report(Output, Target, target_names=selectedLabel))
-        pd.DataFrame({"Target": Target, "Output": Output}).to_excel("CETest2DeepLearningAfter.xlsx")
-
     def getClassificationReport(self, excelName, selectedLabels, type, testSet):
         res = pd.read_excel(excelName)
         Target = res['Target']
@@ -155,11 +128,11 @@ class TestTrainUtils(TestCase):
         g.savefig('TestResAfter.eps', format='eps')
 
     def testPlotHeatMapResults(self):
-        labels = np.asarray(["Larynx", "Oesophagus", "Cardia", "Angularis", "Antrum", "Pylorus", "Duodenum", "Jejunum", "Ileum", "Appendix", "Colon", "Rectum", "Anus"])
-        numberCETest1 = [4, 3, 3, 3, 4, 2, 7, 2, 5, 2, 5, 2, 2]
-        numberWCETest1 = [0, 1, 1, 0, 0, 1, 2, 1, 2, 0, 2, 0, 0]
-        numberCETest2 = [50, 3075, 2450, 500, 0, 2500, 2700, 1500, 0, 0, 5475, 5500, 2000]
-        numberWCETest2 = [0, 260, 20, 0, 0, 280, 130, 380, 280, 0, 475, 0, 0]
+        labels = np.asarray([ "Oesophagus", "Cardia", "Angularis", "Antrum", "Pylorus", "Duodenum", "Jejunum", "Ileum", "Appendix", "Colon", "Rectum", "Anus"])
+        numberCETest1 = [ 3, 3, 3, 4, 2, 7, 2, 5, 2, 5, 2, 2]
+        numberWCETest1 = [ 1, 1, 0, 0, 1, 2, 1, 2, 0, 2, 0, 0]
+        numberCETest2 = [ 3075, 2450, 500, 0, 2500, 2700, 1500, 0, 0, 5475, 5500, 2000]
+        numberWCETest2 = [ 260, 20, 0, 0, 280, 130, 380, 280, 0, 475, 0, 0]
 
         selectedLabelsCE2 = labels[np.where(np.asarray(numberWCETest2) != 0)[0]]
         name = "WCETest2DeepLearningAfter.xlsx"
