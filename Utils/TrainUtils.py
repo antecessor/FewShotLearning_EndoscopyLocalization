@@ -123,7 +123,7 @@ class TrainUtils:
 
 
 
-class TrainEngineMatchingNN(object):
+class TrainEngineMatchingAndPrototypicalNN(object):
     """
     Engine that launches training per epochs and episodes.
     Contains hooks to perform certain actions when necessary.
